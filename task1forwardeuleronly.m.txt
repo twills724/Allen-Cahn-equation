@@ -1,0 +1,39 @@
+close all, clear all;
+%Define the initial conditions
+eps_ = 0.01; a = -2; b = 4; T = 10;
+h = 0.1;  tau = 0.01;
+x = (a:h:b)';  N = numel(x);
+ga = 0;, gb = 0;
+utime = zeros(N,T/tau+1)
+
+%Two finite difference schemes are forward and backwards euler in terms of
+%Solve forward via laplacian 
+
+%Random noise initial condition
+rng(1)
+u = 0.1*rand(N,1)
+utime(:,1) = u
+%Laplacian matrix for a certain time of u
+lap = spdiags([1,-2,-1],-1:1,N,N)
+lap(1,1) = ga
+lap(N,N) = gb
+for i = 1:(T/tau+1)
+    utime(:,i) = u
+    u = u + tau*(eps_*(lap*u) + u - u.^3);
+
+end
+t = 0:tau:T
+size(x)
+size(utime)
+plot(x,utime(:,1)','LineWidth',1.5),hold on;
+plot(x,utime(:,201:200:end)','.-');
+b = 0
+for i = 1:200:T/tau
+    b = b+1
+
+    leg{b} = ['t = ',num2str(t(i))]
+end
+legend(leg,'Orientation','horizontal','FontSize',11)
+title('Forward Euler approximation for u, at time t','FontSize',11)
+xlabel('x','FontSize',11)
+ylabel('u','FontSize',11)
