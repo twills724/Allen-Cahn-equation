@@ -1,0 +1,31 @@
+%Define the initial conditions
+eta = 0.01
+spacestep = 0.01
+timestep = (spacestep^2)/(6*eta^2)
+Tspan = [0:timestep:10]
+x = [-2:spacestep:4]
+N = length(x)
+utime = zeros(N,length(Tspan))
+
+%Two finite difference schemes are forward and backwards euler in terms of
+%Solve forward via laplacian 
+
+%Random noise initial condition
+rng(1)
+u = 0.1*rand(N,1)
+utime(:,1) = u
+%Laplacian matrix for a certain time of u
+for j = 2:length(Tspan)
+    u = utime(:,j-1)
+    lap(2:N-1) = (u(3:N)-2*u(2:N-1)+u(1:N-2))./(spacestep^2);
+    %For first and last vector assume u not in the 1-N doesn't exist
+    lap(1) = (u(2)-2*u(1)/(spacestep^2));
+    lap(N) = (-2*u(N)+u(N-1)/(spacestep^2));
+    utime(:,j) = utime(:,j-1)/(timestep)+(eta^2/(spacestep^2))*lap-(utime(:,j-1)).^3+utime(:,j-1);
+end
+% Visualize the solution over space and time
+imagesc(Tspan, x, utime)
+axis xy
+xlabel('Time')
+ylabel('Space')
+colorbar
