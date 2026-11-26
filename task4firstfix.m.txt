@@ -1,0 +1,64 @@
+close all, clear all;
+%Numerical integration for task 4
+eps = 0.01;, a = -2,; b = 4;
+T = 10;, tau = [2];, h = [2];
+ga = 0;, gb = 0;
+function simpint(h,tau,N)
+eps = 0.01;, a = -2,; b = 4;
+T = 10;
+ga = 0;, gb = 0;
+utime = zeros(N,T/tau+1);
+utimeback = zeros(N,T/tau+1);
+Simpsonpoints = zeros(T/tau+1,1);
+x =  a:h:b;
+%Two finite difference schemes are forward and backwards euler in terms of
+%Solve forward via laplacian 
+
+%Random noise initial condition
+%rng(1);
+%u = 0.1*rand(N,1);
+u = 0.5*(1-tanh(x'/(2*sqrt(2)*eps)));
+uback = u;
+%utime(:,1) = u
+%Laplacian matrix for a certain time of u
+lap = spdiags([1,-2,1],-1:1,N,N);
+lap(1,1) = ga;
+lap(N,N) = gb;
+A = (eye(N)-tau*eps^2/(h^2)*lap);
+%forward euler
+for i = 1:(T/tau+1)
+    utime(:,i) = u;
+    u = u + tau*((eps^2)/(h^2)*(lap*u) + u - u.^3);
+
+end
+%backward euler
+for j = 1:(T/tau+1)
+    utimeback(:,j) = uback;
+    uback = A\(uback+tau*(uback-uback.^3));
+end
+hold on
+n = 1
+t = 0:tau:T;
+f = @(x,t) 0.5*(1-tanh((x-(3*eps/sqrt(2))*t)/(2*sqrt(2)*eps)));
+
+t = 0:tau:T
+for i = t
+    xn = utime(:,n);
+    %Simpsons rule
+    simpson_integral = h/3*(f(xn(1),t) + 4*sum(f(xn(2:2:end-1),t)) + 2*sum(f(xn(3:2:end-2),t)) + f(xn(end),t));
+    Simpsonpoints(n) = simpson_integral(end);
+    n = n+1
+end
+
+plot(t,Simpsonpoints)
+xlabel('Time in seconds')
+ylabel('Energy functional value')
+title('Value of the Energy functional for different times by Simpsons rule')
+end
+for c = 1:length(h)
+    for d = 1:length(tau)
+        N = (b-a)/h(c) + 1;
+        simpint(h(c),tau(d),N);
+
+    end
+end
